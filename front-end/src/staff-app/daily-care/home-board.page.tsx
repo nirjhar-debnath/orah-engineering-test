@@ -9,13 +9,19 @@ import { Person } from "shared/models/person"
 import { useApi } from "shared/hooks/use-api"
 import { StudentListTile } from "staff-app/components/student-list-tile/student-list-tile.component"
 import { ActiveRollOverlay, ActiveRollAction } from "staff-app/components/active-roll-overlay/active-roll-overlay.component"
+import { NameSort } from "staff-app/daily-care/name-sort.component"
+import { Search } from "staff-app/daily-care/search.component"
 
 export const HomeBoardPage: React.FC = () => {
   const [isRollMode, setIsRollMode] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState(null);
+  const [sortBy, setSortBy] = useState("firstName");
 
   useEffect(() => {
     void getStudents()
+    console.log(data);
   }, [getStudents])
 
   const onToolbarAction = (action: ToolbarAction) => {
@@ -33,7 +39,13 @@ export const HomeBoardPage: React.FC = () => {
   return (
     <>
       <S.PageContainer>
-        <Toolbar onItemClick={onToolbarAction} />
+        <Toolbar 
+          onItemClick={onToolbarAction} 
+          setSearchQuery={setSearchQuery}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          setSortBy={setSortBy}
+        />
 
         {loadState === "loading" && (
           <CenteredContainer>
@@ -43,7 +55,47 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && data?.students && (
           <>
-            {data.students.map((s) => (
+            {data.students.filter(student => {
+              if (searchQuery === '') {
+                return student;
+              } else if (student.first_name.toLowerCase().includes(searchQuery.toLowerCase())
+                || student.last_name.toLowerCase().includes(searchQuery.toLowerCase())
+              ) {
+                return student;
+              }
+            }).sort((a, b) => {
+              if(sortOrder==="asc"){
+                if(sortBy==="firstName"){
+                  if (a.first_name > b.first_name) {
+                    return 1;
+                  } else if (a.first_name < b.first_name) {
+                    return -1;
+                  }
+                }
+                else if(sortBy==="lastName") {
+                  if (a.last_name > b.last_name) {
+                    return 1;
+                  } else if (a.last_name < b.last_name) {
+                    return -1;
+                  }
+                }
+              } else if(sortOrder==="desc"){
+                if(sortBy==="firstName"){
+                  if (a.first_name < b.first_name) {
+                    return 1;
+                  } else if (a.first_name > b.first_name) {
+                    return -1;
+                  }
+                }
+                else if(sortBy==="lastName") {
+                  if (a.last_name < b.last_name) {
+                    return 1;
+                  } else if (a.last_name > b.last_name) {
+                    return -1;
+                  }
+                }
+              }  
+            }).map((s) => (
               <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
             ))}
           </>
@@ -63,13 +115,25 @@ export const HomeBoardPage: React.FC = () => {
 type ToolbarAction = "roll" | "sort"
 interface ToolbarProps {
   onItemClick: (action: ToolbarAction, value?: string) => void
+  setSearchQuery:React.Dispatch<React.SetStateAction<string>>
+  sortOrder:string | null
+  setSortOrder:React.Dispatch<React.SetStateAction<any>>
+  setSortBy:React.Dispatch<React.SetStateAction<string>>
 }
 const Toolbar: React.FC<ToolbarProps> = (props) => {
-  const { onItemClick } = props
+  const { onItemClick, setSearchQuery, sortOrder, setSortOrder, setSortBy } = props
   return (
     <S.ToolbarContainer>
-      <div onClick={() => onItemClick("sort")}>First Name</div>
-      <div>Search</div>
+      {/* <div onClick={() => onItemClick("sort")}>
+        <FontAwesomeIcon icon="sort" size="1x" color="white"/>
+        <span>First Name</span>
+      </div> */}
+      <NameSort 
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        setSortBy={setSortBy}
+      />
+      <Search setSearchQuery={setSearchQuery}/>
       <S.Button onClick={() => onItemClick("roll")}>Start Roll</S.Button>
     </S.ToolbarContainer>
   )
@@ -91,6 +155,9 @@ const S = {
     padding: 6px 14px;
     font-weight: ${FontWeight.strong};
     border-radius: ${BorderRadius.default};
+    span {
+      margin-left: ${Spacing.u2};
+    }
   `,
   Button: styled(Button)`
     && {
