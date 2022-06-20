@@ -11,10 +11,10 @@ export const Search: React.FC<SearchProps> = (props) => {
   const { setSearchQuery } = props
 
   const handleSearch = (event) => {
-    console.log(event.target.value);
+    
     setSearchQuery(event.target.value);
   }
-  console.log(props);
+
   return(
     <div>
       <S.InputField 

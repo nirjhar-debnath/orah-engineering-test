@@ -10,10 +10,12 @@ interface Props {
   onItemClick?: (type: ItemType) => void
   size?: number
   studentRollStates:[]
+  rollFilter: string
+  setRollFilter:React.Dispatch<React.SetStateAction<any>>
 }
-export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick, studentRollStates }) => {
+export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick, studentRollStates, rollFilter, setRollFilter }) => {
   const onClick = (type: ItemType) => {
-    console.log(type)
+    setRollFilter(type);
   }
 
   return (
@@ -21,7 +23,7 @@ export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemCli
       {stateList.map((s, i) => {
         if (s.type === "all") {
           return (
-            <S.ListItem key={i}>
+            <S.ListItem key={i} active={rollFilter==="all"}>
               <FontAwesomeIcon icon="users" size="sm" style={{ cursor: "pointer" }} onClick={() => onClick(s.type)} />
               <span>{s.count}</span>
             </S.ListItem>
@@ -29,7 +31,7 @@ export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemCli
         }
 
         return (
-          <S.ListItem key={i}>
+          <S.ListItem key={i} active={rollFilter===s.type}>
             <RollStateIcon type={s.type} size={size} onClick={() => onClick(s.type)} />
             <span>{s.count}</span>
           </S.ListItem>
@@ -44,11 +46,14 @@ const S = {
     display: flex;
     align-items: center;
   `,
-  ListItem: styled.div`
+  ListItem: styled.div<{active:boolean}>`
     display: flex;
     align-items: center;
     margin-right: ${Spacing.u2};
-
+    
+    ${({ active }) => active && `
+      text-decoration:underline;
+    `}
     span {
       font-weight: ${FontWeight.strong};
       margin-left: ${Spacing.u2};

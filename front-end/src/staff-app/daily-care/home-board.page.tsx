@@ -19,27 +19,51 @@ export const HomeBoardPage: React.FC = () => {
   const [sortBy, setSortBy] = useState("firstName");
   const [isRollMode, setIsRollMode] = useState(false)
   const [studentRollStates, setStudentRollStates] = useState<any>([])
-
+  const [rollFilter, setRollFilter] = useState("all")
+  const [filterResult, setFilterResult] = useState([])
+  
 
   useEffect(() => {
     void getStudents()
   }, [getStudents])
 
+  useEffect(()=>{
+    if(data?.students){
+      setFilterResult(data.students)
+    }
+  }, [data])
+
+  useEffect(()=>{
+
+  setFilterResult(data?.students.map(student=>{
+    const index = studentRollStates.findIndex(el=>el["studentId"]===student.id)
+    const { rollState } = index!==-1?studentRollStates[index]:"";
+    return {
+      ...student, 
+      rollState
+      }
+    })) 
+  }, [studentRollStates])
+
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
-      setStudentRollStates([]);
-      data.students.forEach(student=>{
-        setStudentRollStates(prevState => {
-          return [...prevState, {studentId:student.id, rollState:"unmark"}]
+      
+      if(isRollMode===false){
+        data.students.forEach(student=>{
+          setStudentRollStates(prevState => {
+            return [...prevState, {studentId:student.id, rollState:"unmark"}]
+          })
         })
-      })
+      }
+      
     }
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
     if (action === "exit") {
       setIsRollMode(false)
+      setStudentRollStates([])
     }
   }
 
@@ -60,16 +84,16 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
 
-        {loadState === "loaded" && data?.students && (
+        {loadState === "loaded" && filterResult && (
           <>
-            {data.students.filter(student => {
+            {filterResult.filter(student => {
               if (searchQuery === '') {
                 return student;
               } else if (student.first_name.toLowerCase().includes(searchQuery.toLowerCase())
                 || student.last_name.toLowerCase().includes(searchQuery.toLowerCase())
               ) {
                 return student;
-              }
+              } 
             }).sort((a, b) => {
               if(sortOrder==="asc"){
                 if(sortBy==="firstName"){
@@ -103,6 +127,15 @@ export const HomeBoardPage: React.FC = () => {
                 }
               }
               return 1;  
+            }).filter(s=>{
+              if(isRollMode && rollFilter!=="all"){
+                if(s.rollState===rollFilter){
+                  return s
+                }
+              } else{
+                return s
+              }
+             
             }).map((s) => (
               <StudentListTile 
                 key={s.id} 
@@ -110,6 +143,7 @@ export const HomeBoardPage: React.FC = () => {
                 student={s}
                 studentRollStates={studentRollStates}
                 setStudentRollStates={setStudentRollStates}
+                rollFilter={rollFilter}
               /> 
             ))}
           </>
@@ -125,6 +159,8 @@ export const HomeBoardPage: React.FC = () => {
         isActive={isRollMode} 
         onItemClick={onActiveRollAction} 
         studentRollStates={studentRollStates}
+        rollFilter={rollFilter}
+        setRollFilter = {setRollFilter}
       />
     </>
   )

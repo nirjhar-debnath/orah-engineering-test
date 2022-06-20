@@ -11,8 +11,9 @@ interface Props {
   student: Person
   studentRollStates: []
   setStudentRollStates:React.Dispatch<React.SetStateAction<any>>
+  rollFilter: string
 }
-export const StudentListTile: React.FC<Props> = ({ isRollMode, student, studentRollStates, setStudentRollStates}) => {
+export const StudentListTile: React.FC<Props> = ({ isRollMode, student, studentRollStates, setStudentRollStates, rollFilter}) => {
 
   return (
     <S.Container>

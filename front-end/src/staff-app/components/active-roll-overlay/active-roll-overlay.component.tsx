@@ -9,10 +9,12 @@ interface Props {
   isActive: boolean
   onItemClick: (action: ActiveRollAction, value?: string) => void
   studentRollStates:[]
+  rollFilter: string
+  setRollFilter:React.Dispatch<React.SetStateAction<any>>
 }
 
 export const ActiveRollOverlay: React.FC<Props> = (props) => {
-  const { isActive, onItemClick, studentRollStates } = props
+  const { isActive, onItemClick, studentRollStates, rollFilter, setRollFilter } = props
 
   return (
     <S.Overlay isActive={isActive}>
@@ -27,6 +29,9 @@ export const ActiveRollOverlay: React.FC<Props> = (props) => {
               { type: "absent", count: studentRollStates.filter(student=>student.rollState==="absent").length },
             ]}
             studentRollStates={studentRollStates}
+            rollFilter={rollFilter}
+            setRollFilter={setRollFilter}
+
           />
           <div style={{ marginTop: Spacing.u6 }}>
             <Button color="inherit" onClick={() => onItemClick("exit")}>
