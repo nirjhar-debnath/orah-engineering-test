@@ -13,20 +13,27 @@ import { NameSort } from "staff-app/daily-care/name-sort.component"
 import { Search } from "staff-app/daily-care/search.component"
 
 export const HomeBoardPage: React.FC = () => {
-  const [isRollMode, setIsRollMode] = useState(false)
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
   const [sortBy, setSortBy] = useState("firstName");
+  const [isRollMode, setIsRollMode] = useState(false)
+  const [studentRollStates, setStudentRollStates] = useState<any>([])
+
 
   useEffect(() => {
     void getStudents()
-    console.log(data);
   }, [getStudents])
 
   const onToolbarAction = (action: ToolbarAction) => {
     if (action === "roll") {
       setIsRollMode(true)
+      setStudentRollStates([]);
+      data.students.forEach(student=>{
+        setStudentRollStates(prevState => {
+          return [...prevState, {studentId:student.id, rollState:"unmark"}]
+        })
+      })
     }
   }
 
@@ -94,9 +101,16 @@ export const HomeBoardPage: React.FC = () => {
                     return -1;
                   }
                 }
-              }  
+              }
+              return 1;  
             }).map((s) => (
-              <StudentListTile key={s.id} isRollMode={isRollMode} student={s} />
+              <StudentListTile 
+                key={s.id} 
+                isRollMode={isRollMode} 
+                student={s}
+                studentRollStates={studentRollStates}
+                setStudentRollStates={setStudentRollStates}
+              /> 
             ))}
           </>
         )}
@@ -107,7 +121,11 @@ export const HomeBoardPage: React.FC = () => {
           </CenteredContainer>
         )}
       </S.PageContainer>
-      <ActiveRollOverlay isActive={isRollMode} onItemClick={onActiveRollAction} />
+      <ActiveRollOverlay 
+        isActive={isRollMode} 
+        onItemClick={onActiveRollAction} 
+        studentRollStates={studentRollStates}
+      />
     </>
   )
 }

@@ -6,8 +6,11 @@ interface Props {
   initialState?: RolllStateType
   size?: number
   onStateChange?: (newState: RolllStateType) => void
+  studentId?: number
+  studentRollStates?: []
+  setStudentRollStates?:React.Dispatch<React.SetStateAction<any>>
 }
-export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange }) => {
+export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", size = 40, onStateChange, studentRollStates, setStudentRollStates, studentId }) => {
   const [rollState, setRollState] = useState(initialState)
 
   const nextState = () => {
@@ -20,6 +23,14 @@ export const RollStateSwitcher: React.FC<Props> = ({ initialState = "unmark", si
   const onClick = () => {
     const next = nextState()
     setRollState(next)
+   
+    studentRollStates?.map(student=>{
+      if( student.studentId===studentId ){
+        student.rollState = next
+      }
+    })
+    setStudentRollStates([...studentRollStates])
+
     if (onStateChange) {
       onStateChange(next)
     }

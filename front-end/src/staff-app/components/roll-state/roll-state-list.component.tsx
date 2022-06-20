@@ -9,12 +9,11 @@ interface Props {
   stateList: StateList[]
   onItemClick?: (type: ItemType) => void
   size?: number
+  studentRollStates:[]
 }
-export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick }) => {
+export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick, studentRollStates }) => {
   const onClick = (type: ItemType) => {
-    if (onItemClick) {
-      onItemClick(type)
-    }
+    console.log(type)
   }
 
   return (
