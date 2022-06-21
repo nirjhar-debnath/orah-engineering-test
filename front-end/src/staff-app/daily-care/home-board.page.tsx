@@ -16,11 +16,12 @@ export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
   const [saveRoll] = useApi({url: "save-roll"})
   const [studentRollStates, setStudentRollStates] = useState<any[]>([])
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
   const [sortBy, setSortBy] = useState("firstName");
+
   const [isRollMode, setIsRollMode] = useState(false)
-  
   const [rollFilter, setRollFilter] = useState("all")
   const [filterResult, setFilterResult] = useState <any>([])
   
@@ -58,7 +59,6 @@ export const HomeBoardPage: React.FC = () => {
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
-    
     if (action === "exit") {
       setIsRollMode(false)
       setStudentRollStates([])

@@ -9,9 +9,9 @@ interface Props {
   stateList: StateList[]
   onItemClick?: (type: ItemType) => void
   size?: number
-  studentRollStates:any[]
-  rollFilter: string
-  setRollFilter:React.Dispatch<React.SetStateAction<any>>
+  studentRollStates?:any[]
+  rollFilter?: string
+  setRollFilter?:React.Dispatch<React.SetStateAction<any>>
 }
 export const RollStateList: React.FC<Props> = ({ stateList, size = 14, onItemClick, studentRollStates, rollFilter, setRollFilter }) => {
   const onClick = (type: ItemType) => {
