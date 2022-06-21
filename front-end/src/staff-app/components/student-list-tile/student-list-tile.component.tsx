@@ -8,8 +8,8 @@ import { RollStateSwitcher } from "staff-app/components/roll-state/roll-state-sw
 
 interface Props {
   isRollMode?: boolean
-  student: Person
-  studentRollStates: []
+  student: any
+  studentRollStates: any[]
   setStudentRollStates:React.Dispatch<React.SetStateAction<any>>
   rollFilter: string
 }
@@ -27,6 +27,7 @@ export const StudentListTile: React.FC<Props> = ({ isRollMode, student, studentR
             studentId={student.id}
             studentRollStates = {studentRollStates}
             setStudentRollStates = {setStudentRollStates}
+            initialState = {student.rollState}
           />
         </S.Roll>
       )}

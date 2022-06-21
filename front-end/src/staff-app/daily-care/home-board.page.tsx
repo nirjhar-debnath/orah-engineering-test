@@ -14,13 +14,15 @@ import { Search } from "staff-app/daily-care/search.component"
 
 export const HomeBoardPage: React.FC = () => {
   const [getStudents, data, loadState] = useApi<{ students: Person[] }>({ url: "get-homeboard-students" })
+  const [saveRoll] = useApi({url: "save-roll"})
+  const [studentRollStates, setStudentRollStates] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState(null);
   const [sortBy, setSortBy] = useState("firstName");
   const [isRollMode, setIsRollMode] = useState(false)
-  const [studentRollStates, setStudentRollStates] = useState<any>([])
+  
   const [rollFilter, setRollFilter] = useState("all")
-  const [filterResult, setFilterResult] = useState([])
+  const [filterResult, setFilterResult] = useState <any>([])
   
 
   useEffect(() => {
@@ -31,39 +33,44 @@ export const HomeBoardPage: React.FC = () => {
     if(data?.students){
       setFilterResult(data.students)
     }
-  }, [data])
+  }, [data, isRollMode])
 
   useEffect(()=>{
-
-  setFilterResult(data?.students.map(student=>{
-    const index = studentRollStates.findIndex(el=>el["studentId"]===student.id)
-    const { rollState } = index!==-1?studentRollStates[index]:"";
-    return {
-      ...student, 
-      rollState
-      }
-    })) 
-  }, [studentRollStates])
+    setFilterResult(data?.students?.map(student=>{
+      const index = studentRollStates.findIndex(el=>el["studentId"]===student.id)
+      const { rollState } = index!==-1?studentRollStates[index]:"";
+      return {
+        ...student, 
+        rollState
+        }
+    }))
+  }, [studentRollStates, rollFilter])
 
   const onToolbarAction = (action: ToolbarAction) => {
-    if (action === "roll") {
+    if (action === "roll" && isRollMode===false) {
       setIsRollMode(true)
-      
-      if(isRollMode===false){
-        data.students.forEach(student=>{
-          setStudentRollStates(prevState => {
-            return [...prevState, {studentId:student.id, rollState:"unmark"}]
-          })
+      data?.students.forEach(student=>{
+        setStudentRollStates((prevState: any) => {
+          return [...prevState, {studentId:student.id, rollState:"unmark"}]
         })
-      }
-      
+      })
     }
   }
 
   const onActiveRollAction = (action: ActiveRollAction) => {
+    
     if (action === "exit") {
       setIsRollMode(false)
       setStudentRollStates([])
+      setFilterResult([])
+      setRollFilter("all")
+    }
+    if(action === "save"){
+      saveRoll({student_roll_states:studentRollStates})
+      setIsRollMode(false)
+      setStudentRollStates([])
+      setFilterResult([])
+      setRollFilter("all")
     }
   }
 
@@ -86,15 +93,15 @@ export const HomeBoardPage: React.FC = () => {
 
         {loadState === "loaded" && filterResult && (
           <>
-            {filterResult.filter(student => {
+            {filterResult.filter((student: { first_name: string; last_name: string }) => {
               if (searchQuery === '') {
                 return student;
-              } else if (student.first_name.toLowerCase().includes(searchQuery.toLowerCase())
+              } else if (student?.first_name.toLowerCase().includes(searchQuery.toLowerCase())
                 || student.last_name.toLowerCase().includes(searchQuery.toLowerCase())
               ) {
                 return student;
               } 
-            }).sort((a, b) => {
+            }).sort((a: { first_name: string; last_name: string }, b: { first_name: string; last_name: string}) => {
               if(sortOrder==="asc"){
                 if(sortBy==="firstName"){
                   if (a.first_name > b.first_name) {
@@ -127,7 +134,7 @@ export const HomeBoardPage: React.FC = () => {
                 }
               }
               return 1;  
-            }).filter(s=>{
+            }).filter((s: { rollState: string })=>{
               if(isRollMode && rollFilter!=="all"){
                 if(s.rollState===rollFilter){
                   return s
@@ -136,7 +143,7 @@ export const HomeBoardPage: React.FC = () => {
                 return s
               }
              
-            }).map((s) => (
+            }).map((s: Person) => (
               <StudentListTile 
                 key={s.id} 
                 isRollMode={isRollMode} 

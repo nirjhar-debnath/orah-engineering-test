@@ -9,7 +9,7 @@ interface Props {
   stateList: StateList[]
   onItemClick?: (type: ItemType) => void
   size?: number
-  studentRollStates:[]
+  studentRollStates:any[]
   rollFilter: string
   setRollFilter:React.Dispatch<React.SetStateAction<any>>
 }
